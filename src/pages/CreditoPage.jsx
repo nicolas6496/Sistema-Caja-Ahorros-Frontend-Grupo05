@@ -2,36 +2,46 @@ import { useState } from 'react'
 import { solicitarCredito } from '../services/api'
 
 function CreditoPage() {
-  const [monto, setMonto] = useState('')
-  const [plazo, setPlazo] = useState('')
-  const [tipoAmortizacion, setTipoAmortizacion] = useState('francesa')
+  const [idSocio, setIdSocio] = useState('')
+  const [montoSolicitado, setMontoSolicitado] = useState('')
+  const [plazoMeses, setPlazoMeses] = useState('')
   const [motivo, setMotivo] = useState('')
   const [cargando, setCargando] = useState(false)
-  const [mensaje, setMensaje] = useState('')
+  const [resultado, setResultado] = useState(null)
+  const [error, setError] = useState('')
 
   const manejarEnvio = async (evento) => {
     evento.preventDefault()
     setCargando(true)
-    setMensaje('')
+    setResultado(null)
+    setError('')
 
     const datosCredito = {
-      monto: Number(monto),
-      plazo: Number(plazo),
-      tipoAmortizacion,
+      idSocio: Number(idSocio),
+      montoSolicitado: Number(montoSolicitado),
+      plazoMeses: Number(plazoMeses),
       motivo,
     }
 
     try {
       const respuesta = await solicitarCredito(datosCredito)
-      setMensaje(respuesta.mensaje)
 
-      setMonto('')
-      setPlazo('')
-      setTipoAmortizacion('francesa')
+      setResultado({
+        mensaje: respuesta.mensaje,
+        idSolicitud: respuesta.idSolicitud,
+        estado: respuesta.estado,
+      })
+
+      setIdSocio('')
+      setMontoSolicitado('')
+      setPlazoMeses('')
       setMotivo('')
-    } catch (error) {
-      console.error(error)
-      setMensaje('No se pudo enviar la solicitud')
+    } catch (errorPeticion) {
+      console.error('Error al solicitar el crédito:', errorPeticion)
+
+      setError(
+        errorPeticion.message || 'No se pudo enviar la solicitud de crédito',
+      )
     } finally {
       setCargando(false)
     }
@@ -54,92 +64,116 @@ function CreditoPage() {
           </p>
         </div>
 
-        {mensaje && (
-          <p className="mb-6 rounded-lg bg-green-100 px-4 py-3 text-center font-medium text-green-800">
-            {mensaje}
-          </p>
+        {resultado && (
+          <div className="mb-6 rounded-lg border border-green-200 bg-green-100 p-4 text-green-800">
+            <p className="font-semibold">{resultado.mensaje}</p>
+
+            {resultado.idSolicitud && (
+              <p className="mt-2">
+                <span className="font-semibold">ID de solicitud:</span>{' '}
+                {resultado.idSolicitud}
+              </p>
+            )}
+
+            {resultado.estado && (
+              <p className="mt-1">
+                <span className="font-semibold">Estado:</span>{' '}
+                {resultado.estado}
+              </p>
+            )}
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-100 p-4 text-red-800">
+            <p className="font-semibold">Error</p>
+            <p className="mt-1">{error}</p>
+          </div>
         )}
 
         <form className="space-y-6" onSubmit={manejarEnvio}>
           <div>
             <label
-              htmlFor="montoCredito"
+              htmlFor="idSocioCredito"
+              className="mb-2 block font-semibold text-slate-700"
+            >
+              ID del socio
+            </label>
+
+            <input
+              id="idSocioCredito"
+              type="number"
+              min="1"
+              step="1"
+              value={idSocio}
+              onChange={(evento) => setIdSocio(evento.target.value)}
+              placeholder="Ejemplo: 1025"
+              required
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="montoSolicitado"
               className="mb-2 block font-semibold text-slate-700"
             >
               Monto solicitado
             </label>
 
             <input
-              id="montoCredito"
+              id="montoSolicitado"
               type="number"
               min="1"
               step="0.01"
-              value={monto}
-              onChange={(evento) => setMonto(evento.target.value)}
-              placeholder="0.00"
+              value={montoSolicitado}
+              onChange={(evento) =>
+                setMontoSolicitado(evento.target.value)
+              }
+              placeholder="Ejemplo: 5000.00"
               required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
           <div>
             <label
-              htmlFor="plazo"
+              htmlFor="plazoMeses"
               className="mb-2 block font-semibold text-slate-700"
             >
               Plazo en meses
             </label>
 
             <input
-              id="plazo"
+              id="plazoMeses"
               type="number"
               min="1"
               max="60"
-              value={plazo}
-              onChange={(evento) => setPlazo(evento.target.value)}
-              placeholder="Ejemplo: 12"
+              step="1"
+              value={plazoMeses}
+              onChange={(evento) => setPlazoMeses(evento.target.value)}
+              placeholder="Ejemplo: 24"
               required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
           <div>
             <label
-              htmlFor="tipoAmortizacion"
-              className="mb-2 block font-semibold text-slate-700"
-            >
-              Tipo de amortización
-            </label>
-
-            <select
-              id="tipoAmortizacion"
-              value={tipoAmortizacion}
-              onChange={(evento) =>
-                setTipoAmortizacion(evento.target.value)
-              }
-              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-            >
-              <option value="francesa">Amortización francesa</option>
-              <option value="alemana">Amortización alemana</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="motivo"
+              htmlFor="motivoCredito"
               className="mb-2 block font-semibold text-slate-700"
             >
               Motivo del crédito
             </label>
 
             <textarea
-              id="motivo"
+              id="motivoCredito"
               rows="4"
               value={motivo}
               onChange={(evento) => setMotivo(evento.target.value)}
-              placeholder="Describe brevemente para qué necesitas el crédito"
+              placeholder="Ejemplo: Mejoras del hogar"
               required
-              className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 

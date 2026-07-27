@@ -1,35 +1,36 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { consultarSaldo } from '../services/api'
 
 function SaldoPage() {
-  const [cuenta, setCuenta] = useState({
-    numero: '',
-    titular: '',
-    saldo: 0,
-  })
-
+  const [idSocio, setIdSocio] = useState('')
+  const [cuenta, setCuenta] = useState(null)
   const [cargando, setCargando] = useState(false)
-  const [mensaje, setMensaje] = useState('')
+  const [error, setError] = useState('')
 
-  const cargarSaldo = async () => {
+  const manejarConsulta = async (evento) => {
+    evento.preventDefault()
     setCargando(true)
-    setMensaje('')
+    setCuenta(null)
+    setError('')
 
     try {
-      const datos = await consultarSaldo()
-      setCuenta(datos)
-      setMensaje('Saldo actualizado correctamente')
-    } catch (error) {
-      console.error(error)
-      setMensaje('No se pudo consultar el saldo')
+      const datos = await consultarSaldo(Number(idSocio))
+
+      setCuenta({
+        idSocio: datos.idSocio,
+        nombre: datos.nombre,
+        saldoDisponible: Number(datos.saldoDisponible),
+      })
+    } catch (errorPeticion) {
+      console.error('Error al consultar el saldo:', errorPeticion)
+
+      setError(
+        errorPeticion.message || 'No se encontró información del socio',
+      )
     } finally {
       setCargando(false)
     }
   }
-
-  useEffect(() => {
-    cargarSaldo()
-  }, [])
 
   return (
     <main className="min-h-screen bg-slate-100 px-4 py-10">
@@ -44,43 +45,82 @@ function SaldoPage() {
           </h1>
 
           <p className="mt-2 text-slate-600">
-            Revisa la información disponible de la cuenta.
+            Ingresa el ID del socio para consultar su saldo disponible.
           </p>
         </div>
 
-        <article className="rounded-2xl bg-gradient-to-br from-blue-800 to-blue-600 p-8 text-white shadow-lg">
-          <p className="text-sm text-blue-100">Saldo disponible</p>
+        <form
+          onSubmit={manejarConsulta}
+          className="mb-6 rounded-2xl bg-white p-6 shadow-lg"
+        >
+          <label
+            htmlFor="idSocioSaldo"
+            className="mb-2 block font-semibold text-slate-700"
+          >
+            ID del socio
+          </label>
 
-          <p className="mt-3 text-4xl font-bold">
-            ${cuenta.saldo.toFixed(2)}
-          </p>
+          <input
+            id="idSocioSaldo"
+            type="number"
+            min="1"
+            step="1"
+            value={idSocio}
+            onChange={(evento) => setIdSocio(evento.target.value)}
+            placeholder="Ejemplo: 1025"
+            required
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+          />
 
-          <div className="mt-8 border-t border-blue-400 pt-5">
-            <p className="text-sm text-blue-100">Titular</p>
-            <p className="font-semibold">{cuenta.titular}</p>
+          <button
+            type="submit"
+            disabled={cargando}
+            className="mt-5 w-full rounded-lg bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-blue-400"
+          >
+            {cargando ? 'Consultando...' : 'Consultar saldo'}
+          </button>
+        </form>
 
-            <p className="mt-4 text-sm text-blue-100">
-              Número de cuenta
-            </p>
-
-            <p className="font-semibold">{cuenta.numero}</p>
+        {error && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-100 p-4 text-red-800">
+            <p className="font-semibold">Error</p>
+            <p className="mt-1">{error}</p>
           </div>
-        </article>
-
-        {mensaje && (
-          <p className="mt-4 rounded-lg bg-green-100 px-4 py-3 text-center font-medium text-green-800">
-            {mensaje}
-          </p>
         )}
 
-        <button
-          type="button"
-          onClick={cargarSaldo}
-          disabled={cargando}
-          className="mt-6 w-full rounded-lg bg-white px-6 py-3 font-semibold text-blue-800 shadow transition hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {cargando ? 'Actualizando...' : 'Actualizar saldo'}
-        </button>
+        {cuenta ? (
+          <article className="rounded-2xl bg-gradient-to-br from-blue-800 to-blue-600 p-8 text-white shadow-lg">
+            <p className="text-sm text-blue-100">
+              Saldo disponible
+            </p>
+
+            <p className="mt-3 text-4xl font-bold">
+              ${cuenta.saldoDisponible.toFixed(2)}
+            </p>
+
+            <div className="mt-8 border-t border-blue-400 pt-5">
+              <p className="text-sm text-blue-100">
+                ID del socio
+              </p>
+
+              <p className="font-semibold">
+                {cuenta.idSocio}
+              </p>
+
+              <p className="mt-4 text-sm text-blue-100">
+                Nombre
+              </p>
+
+              <p className="font-semibold">
+                {cuenta.nombre}
+              </p>
+            </div>
+          </article>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">
+            Ingresa el ID del socio para mostrar la información.
+          </div>
+        )}
       </section>
     </main>
   )

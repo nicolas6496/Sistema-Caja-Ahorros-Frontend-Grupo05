@@ -2,17 +2,21 @@ import { useState } from 'react'
 import { registrarDeposito } from '../services/api'
 
 function DepositoPage() {
-  const [numeroCuenta, setNumeroCuenta] = useState('')
+  const [idSocio, setIdSocio] = useState('')
   const [monto, setMonto] = useState('')
   const [descripcion, setDescripcion] = useState('')
   const [cargando, setCargando] = useState(false)
+  const [resultado, setResultado] = useState(null)
+  const [error, setError] = useState('')
 
   const manejarEnvio = async (evento) => {
     evento.preventDefault()
     setCargando(true)
+    setResultado(null)
+    setError('')
 
     const datosDeposito = {
-      numeroCuenta,
+      idSocio: Number(idSocio),
       monto: Number(monto),
       descripcion,
     }
@@ -20,14 +24,21 @@ function DepositoPage() {
     try {
       const respuesta = await registrarDeposito(datosDeposito)
 
-      alert(respuesta.mensaje)
+      setResultado({
+        mensaje: respuesta.mensaje,
+        idTransaccion: respuesta.idTransaccion,
+        nuevoSaldo: respuesta.nuevoSaldo,
+      })
 
-      setNumeroCuenta('')
+      setIdSocio('')
       setMonto('')
       setDescripcion('')
-    } catch (error) {
-      console.error('Error al registrar el depósito:', error)
-      alert('No se pudo registrar el depósito')
+    } catch (errorPeticion) {
+      console.error('Error al registrar el depósito:', errorPeticion)
+
+      setError(
+        errorPeticion.message || 'No se pudo registrar el depósito',
+      )
     } finally {
       setCargando(false)
     }
@@ -46,25 +57,54 @@ function DepositoPage() {
           </h1>
 
           <p className="mt-2 text-slate-600">
-            Ingresa los datos necesarios para realizar el depósito.
+            Ingresa los datos necesarios para registrar un depósito.
           </p>
         </div>
+
+        {resultado && (
+          <div className="mb-6 rounded-lg border border-green-200 bg-green-100 p-4 text-green-800">
+            <p className="font-semibold">{resultado.mensaje}</p>
+
+            {resultado.idTransaccion && (
+              <p className="mt-2">
+                <span className="font-semibold">ID de transacción:</span>{' '}
+                {resultado.idTransaccion}
+              </p>
+            )}
+
+            {resultado.nuevoSaldo !== undefined && (
+              <p className="mt-1">
+                <span className="font-semibold">Nuevo saldo:</span> $
+                {Number(resultado.nuevoSaldo).toFixed(2)}
+              </p>
+            )}
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-100 p-4 text-red-800">
+            <p className="font-semibold">Error</p>
+            <p className="mt-1">{error}</p>
+          </div>
+        )}
 
         <form className="space-y-6" onSubmit={manejarEnvio}>
           <div>
             <label
-              htmlFor="numeroCuenta"
+              htmlFor="idSocioDeposito"
               className="mb-2 block font-semibold text-slate-700"
             >
-              Número de cuenta
+              ID del socio
             </label>
 
             <input
-              id="numeroCuenta"
-              type="text"
-              value={numeroCuenta}
-              onChange={(evento) => setNumeroCuenta(evento.target.value)}
-              placeholder="Ejemplo: 0001234567"
+              id="idSocioDeposito"
+              type="number"
+              min="1"
+              step="1"
+              value={idSocio}
+              onChange={(evento) => setIdSocio(evento.target.value)}
+              placeholder="Ejemplo: 1025"
               required
               className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             />
@@ -72,14 +112,14 @@ function DepositoPage() {
 
           <div>
             <label
-              htmlFor="monto"
+              htmlFor="montoDeposito"
               className="mb-2 block font-semibold text-slate-700"
             >
               Monto del depósito
             </label>
 
             <input
-              id="monto"
+              id="montoDeposito"
               type="number"
               min="0.01"
               step="0.01"
@@ -93,18 +133,18 @@ function DepositoPage() {
 
           <div>
             <label
-              htmlFor="descripcion"
+              htmlFor="descripcionDeposito"
               className="mb-2 block font-semibold text-slate-700"
             >
               Descripción
             </label>
 
             <textarea
-              id="descripcion"
+              id="descripcionDeposito"
               rows="4"
               value={descripcion}
               onChange={(evento) => setDescripcion(evento.target.value)}
-              placeholder="Detalle opcional del depósito"
+              placeholder="Ejemplo: Depósito mensual"
               className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             />
           </div>
