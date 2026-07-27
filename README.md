@@ -1,84 +1,16 @@
-# Frontend - Sistema de Gestión de Cajas de Ahorro
+# React + Vite
 
-## Descripción
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-Este repositorio contiene el frontend del **Sistema de Gestión de Cajas de Ahorro**, desarrollado como parte de la Tarea Final de la asignatura Ingeniería de Software.
+Currently, two official plugins are available:
 
-La aplicación utiliza **React** y **Tailwind CSS** y se comunica con los servicios desarrollados previamente en el backend.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Objetivo
+## React Compiler
 
-Desarrollar una aplicación web que permita acceder a las principales funcionalidades del Sistema de Gestión de Cajas de Ahorro mediante una interfaz clara, organizada y fácil de utilizar.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Funcionalidades
+## Expanding the Oxlint configuration
 
-La aplicación incluye tres funcionalidades principales:
-
-1. **Registrar depósito:** permite registrar un depósito en la cuenta de un socio.
-2. **Consultar saldo:** permite consultar el saldo disponible de un socio.
-3. **Solicitar crédito:** permite registrar una solicitud de crédito.
-
-## Tecnologías utilizadas
-
-- React
-- JavaScript
-- Tailwind CSS
-- API REST
-- Git
-- GitHub
-
-## Interfaces principales
-
-El frontend estará compuesto por las siguientes pantallas:
-
-- Formulario de registro de depósitos.
-- Vista de consulta de saldo.
-- Formulario de solicitud de crédito.
-
-Los documentos de requerimientos y los mockups se encuentran dentro de la carpeta `docs`.
-
-## Asignación de tareas
-
-### Nicolás Ruiz
-
-- Creación y configuración inicial del repositorio frontend.
-- Organización de las ramas y tareas de seguimiento.
-- Elaboración y actualización del archivo README.
-- Revisión de la documentación del repositorio.
-- Organización de la exposición.
-- Consolidación del entregable final en PDF.
-
-### Ezequiel Paredes
-
-- Elaboración de los requerimientos funcionales.
-- Desarrollo de los mockups de las tres interfaces.
-- Organización de los documentos dentro de la carpeta `docs`.
-- Apoyo en el seguimiento de las actividades del proyecto.
-
-### Franklin Tandazo
-
-- Diseño y maquetación de las interfaces con React y Tailwind CSS.
-- Desarrollo visual del formulario de depósitos.
-- Desarrollo visual de la consulta de saldo.
-- Desarrollo visual del formulario de crédito.
-- Adaptación de las interfaces a diferentes tamaños de pantalla.
-
-### Anthony Alvarado
-
-- Desarrollo de la lógica del frontend.
-- Integración de las interfaces con la API REST.
-- Consumo de los servicios de depósito, saldo y crédito.
-- Implementación de validaciones y mensajes de respuesta.
-- Gestión de estados de carga, éxito y error.
-- Pruebas de integración con el backend.
-
-## Organización del repositorio
-
-```text
-├── docs/
-│   ├── requerimientos.md
-│   └── mockups/
-├── src/
-├── public/
-├── .gitignore
-└── README.md
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
