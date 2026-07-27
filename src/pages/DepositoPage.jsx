@@ -1,12 +1,15 @@
 import { useState } from 'react'
+import { registrarDeposito } from '../services/api'
 
 function DepositoPage() {
   const [numeroCuenta, setNumeroCuenta] = useState('')
   const [monto, setMonto] = useState('')
   const [descripcion, setDescripcion] = useState('')
+  const [cargando, setCargando] = useState(false)
 
-  const manejarEnvio = (evento) => {
+  const manejarEnvio = async (evento) => {
     evento.preventDefault()
+    setCargando(true)
 
     const datosDeposito = {
       numeroCuenta,
@@ -14,7 +17,20 @@ function DepositoPage() {
       descripcion,
     }
 
-    console.log('Datos para Anthony:', datosDeposito)
+    try {
+      const respuesta = await registrarDeposito(datosDeposito)
+
+      alert(respuesta.mensaje)
+
+      setNumeroCuenta('')
+      setMonto('')
+      setDescripcion('')
+    } catch (error) {
+      console.error('Error al registrar el depósito:', error)
+      alert('No se pudo registrar el depósito')
+    } finally {
+      setCargando(false)
+    }
   }
 
   return (
@@ -95,9 +111,10 @@ function DepositoPage() {
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800"
+            disabled={cargando}
+            className="w-full rounded-lg bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-blue-400"
           >
-            Registrar depósito
+            {cargando ? 'Registrando...' : 'Registrar depósito'}
           </button>
         </form>
       </section>
