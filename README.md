@@ -39,38 +39,38 @@ Los documentos de requerimientos y los mockups se encuentran dentro de la carpet
 
 ## Asignación de tareas
 
-### Anthony Alvarado
+### Nicolás Ruiz
 
 - Creación y configuración inicial del repositorio frontend.
-- Preparación de la estructura para la integración.
-- Desarrollo de la lógica del frontend.
-- Consumo de los servicios de depósito, saldo y crédito.
-- Implementación de validaciones y mensajes de respuesta.
-- Pruebas de integración con el backend.
-
-### Franklin Tandazo
-
-- Diseño y maquetación de las interfaces.
-- Desarrollo visual del formulario de depósitos.
-- Desarrollo visual de la consulta de saldo.
-- Desarrollo visual del formulario de crédito.
-- Aplicación de estilos mediante Tailwind CSS.
-- Adaptación de las interfaces a diferentes tamaños de pantalla.
+- Organización de las ramas y tareas de seguimiento.
+- Elaboración y actualización del archivo README.
+- Revisión de la documentación del repositorio.
+- Organización de la exposición.
+- Consolidación del entregable final en PDF.
 
 ### Ezequiel Paredes
 
 - Elaboración de los requerimientos funcionales.
 - Desarrollo de los mockups de las tres interfaces.
-- Organización de los documentos dentro del repositorio.
-- Apoyo en el seguimiento de las tareas del proyecto.
+- Organización de los documentos dentro de la carpeta `docs`.
+- Apoyo en el seguimiento de las actividades del proyecto.
 
-### Nicolás Ruiz
+### Franklin Tandazo
 
-- Gestión y seguimiento general del proyecto.
-- Revisión y actualización de la documentación.
-- Organización de la exposición.
-- Verificación de la participación de los integrantes.
-- Consolidación del entregable final en PDF.
+- Diseño y maquetación de las interfaces con React y Tailwind CSS.
+- Desarrollo visual del formulario de depósitos.
+- Desarrollo visual de la consulta de saldo.
+- Desarrollo visual del formulario de crédito.
+- Adaptación de las interfaces a diferentes tamaños de pantalla.
+
+### Anthony Alvarado
+
+- Desarrollo de la lógica del frontend.
+- Integración de las interfaces con la API REST.
+- Consumo de los servicios de depósito, saldo y crédito.
+- Implementación de validaciones y mensajes de respuesta.
+- Gestión de estados de carga, éxito y error.
+- Pruebas de integración con el backend.
 
 ## Organización del repositorio
 
