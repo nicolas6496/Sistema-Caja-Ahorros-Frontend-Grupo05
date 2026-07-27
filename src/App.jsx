@@ -1,7 +1,7 @@
-import SaldoPage from './pages/SaldoPage'
+import CreditoPage from './pages/CreditoPage'
 
 function App() {
-  return <SaldoPage />
+  return <CreditoPage />
 }
 
 export default App
