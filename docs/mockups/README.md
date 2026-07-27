@@ -1,7 +1,13 @@
-# Mockups de las interfaces
+## Interfaces desarrolladas
 
-En esta carpeta se almacenarán los diseños correspondientes a:
-
-- Formulario de depósitos.
-- Consulta de saldo.
+- Formulario de depósito.
+- Vista de consulta de saldo.
 - Formulario de solicitud de crédito.
+- Navegación entre las pantallas principales.
+
+## Ejecución
+
+```bash
+npm install
+npm run dev
+```
