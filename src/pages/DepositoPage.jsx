@@ -45,7 +45,7 @@ function DepositoPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-10">
+   <main className="px-4 py-10">
       <section className="mx-auto max-w-xl rounded-2xl bg-white p-8 shadow-lg">
         <div className="mb-8">
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">

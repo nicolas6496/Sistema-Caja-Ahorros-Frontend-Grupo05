@@ -33,7 +33,7 @@ function SaldoPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 px-4 py-10">
+   <main className="px-4 py-10">
       <section className="mx-auto max-w-xl">
         <div className="mb-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
