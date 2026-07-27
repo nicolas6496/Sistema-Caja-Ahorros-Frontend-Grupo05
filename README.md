@@ -4,7 +4,7 @@
 
 Este repositorio contiene el frontend del **Sistema de Gestión de Cajas de Ahorro**, desarrollado como parte de la Tarea Final de la asignatura Ingeniería de Software.
 
-La aplicación utiliza **React** y **Tailwind CSS** y se comunica con los servicios desarrollados previamente en el backend.
+La aplicación utiliza **React**, **Vite** y **Tailwind CSS**, y se comunica con los servicios desarrollados previamente en el backend.
 
 ## Objetivo
 
@@ -14,13 +14,14 @@ Desarrollar una aplicación web que permita acceder a las principales funcionali
 
 La aplicación incluye tres funcionalidades principales:
 
-1. **Registrar depósito:** permite registrar un depósito en la cuenta de un socio.
-2. **Consultar saldo:** permite consultar el saldo disponible de un socio.
+1. **Registrar depósito:** permite registrar un depósito para un socio.
+2. **Consultar saldo:** permite consultar el saldo disponible mediante el ID del socio.
 3. **Solicitar crédito:** permite registrar una solicitud de crédito.
 
 ## Tecnologías utilizadas
 
 - React
+- Vite
 - JavaScript
 - Tailwind CSS
 - API REST
@@ -29,11 +30,14 @@ La aplicación incluye tres funcionalidades principales:
 
 ## Interfaces principales
 
-El frontend estará compuesto por las siguientes pantallas:
+El frontend está compuesto por las siguientes pantallas:
 
 - Formulario de registro de depósitos.
 - Vista de consulta de saldo.
 - Formulario de solicitud de crédito.
+- Navegación entre las tres pantallas principales.
+- Mensajes visuales de éxito y error.
+- Adaptación a diferentes tamaños de pantalla.
 
 Los documentos de requerimientos y los mockups se encuentran dentro de la carpeta `docs`.
 
@@ -62,6 +66,8 @@ Los documentos de requerimientos y los mockups se encuentran dentro de la carpet
 - Desarrollo visual de la consulta de saldo.
 - Desarrollo visual del formulario de crédito.
 - Adaptación de las interfaces a diferentes tamaños de pantalla.
+- Preparación visual de mensajes de carga, éxito y error.
+- Alineación de los campos de las interfaces con los contratos documentados del backend.
 
 ### Anthony Alvarado
 
@@ -72,6 +78,32 @@ Los documentos de requerimientos y los mockups se encuentran dentro de la carpet
 - Gestión de estados de carga, éxito y error.
 - Pruebas de integración con el backend.
 
+## Ejecución
+
+Para instalar las dependencias:
+
+```bash
+npm install
+```
+
+Para iniciar el entorno de desarrollo:
+
+```bash
+npm run dev
+```
+
+Para comprobar la construcción del proyecto:
+
+```bash
+npm run build
+```
+
+Para ejecutar el análisis del código:
+
+```bash
+npm run lint
+```
+
 ## Organización del repositorio
 
 ```text
@@ -79,6 +111,20 @@ Los documentos de requerimientos y los mockups se encuentran dentro de la carpet
 │   ├── requerimientos.md
 │   └── mockups/
 ├── src/
+│   ├── pages/
+│   └── services/
 ├── public/
 ├── .gitignore
+├── index.html
+├── package.json
 └── README.md
+```
+## Configuración de la API
+
+Copia `.env.example` como `.env` y configura la dirección del backend:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+El archivo `.env` no debe subirse al repositorio.
