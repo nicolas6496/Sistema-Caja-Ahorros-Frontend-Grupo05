@@ -1,13 +1,18 @@
 import { useState } from 'react'
+import { solicitarCredito } from '../services/api'
 
 function CreditoPage() {
   const [monto, setMonto] = useState('')
   const [plazo, setPlazo] = useState('')
   const [tipoAmortizacion, setTipoAmortizacion] = useState('francesa')
   const [motivo, setMotivo] = useState('')
+  const [cargando, setCargando] = useState(false)
+  const [mensaje, setMensaje] = useState('')
 
-  const manejarEnvio = (evento) => {
+  const manejarEnvio = async (evento) => {
     evento.preventDefault()
+    setCargando(true)
+    setMensaje('')
 
     const datosCredito = {
       monto: Number(monto),
@@ -16,7 +21,20 @@ function CreditoPage() {
       motivo,
     }
 
-    console.log('Datos para Anthony:', datosCredito)
+    try {
+      const respuesta = await solicitarCredito(datosCredito)
+      setMensaje(respuesta.mensaje)
+
+      setMonto('')
+      setPlazo('')
+      setTipoAmortizacion('francesa')
+      setMotivo('')
+    } catch (error) {
+      console.error(error)
+      setMensaje('No se pudo enviar la solicitud')
+    } finally {
+      setCargando(false)
+    }
   }
 
   return (
@@ -36,17 +54,23 @@ function CreditoPage() {
           </p>
         </div>
 
+        {mensaje && (
+          <p className="mb-6 rounded-lg bg-green-100 px-4 py-3 text-center font-medium text-green-800">
+            {mensaje}
+          </p>
+        )}
+
         <form className="space-y-6" onSubmit={manejarEnvio}>
           <div>
             <label
-              htmlFor="monto"
+              htmlFor="montoCredito"
               className="mb-2 block font-semibold text-slate-700"
             >
               Monto solicitado
             </label>
 
             <input
-              id="monto"
+              id="montoCredito"
               type="number"
               min="1"
               step="0.01"
@@ -54,7 +78,7 @@ function CreditoPage() {
               onChange={(evento) => setMonto(evento.target.value)}
               placeholder="0.00"
               required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
@@ -75,7 +99,7 @@ function CreditoPage() {
               onChange={(evento) => setPlazo(evento.target.value)}
               placeholder="Ejemplo: 12"
               required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
@@ -90,8 +114,10 @@ function CreditoPage() {
             <select
               id="tipoAmortizacion"
               value={tipoAmortizacion}
-              onChange={(evento) => setTipoAmortizacion(evento.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              onChange={(evento) =>
+                setTipoAmortizacion(evento.target.value)
+              }
+              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             >
               <option value="francesa">Amortización francesa</option>
               <option value="alemana">Amortización alemana</option>
@@ -113,15 +139,16 @@ function CreditoPage() {
               onChange={(evento) => setMotivo(evento.target.value)}
               placeholder="Describe brevemente para qué necesitas el crédito"
               required
-              className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800"
+            disabled={cargando}
+            className="w-full rounded-lg bg-blue-700 px-6 py-3 font-semibold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-blue-400"
           >
-            Enviar solicitud
+            {cargando ? 'Enviando...' : 'Enviar solicitud'}
           </button>
         </form>
       </section>
