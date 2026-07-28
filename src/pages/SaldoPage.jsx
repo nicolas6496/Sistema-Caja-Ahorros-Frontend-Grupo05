@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { consultarSaldo } from '../services/api'
+import { validarIdSocio } from '../utils/validaciones'
 
 function SaldoPage() {
   const [idSocio, setIdSocio] = useState('')
@@ -9,31 +10,41 @@ function SaldoPage() {
 
   const manejarConsulta = async (evento) => {
     evento.preventDefault()
-    setCargando(true)
     setCuenta(null)
     setError('')
 
+    const errorValidacion = validarIdSocio(idSocio)
+
+    if (errorValidacion) {
+      setError(errorValidacion)
+      return
+    }
+
+    setCargando(true)
+
     try {
       const datos = await consultarSaldo(Number(idSocio))
+      const saldoDisponible = Number(datos.saldoDisponible)
+
+      if (!Number.isFinite(saldoDisponible)) {
+        throw new Error('El servidor devolvió un saldo inválido')
+      }
 
       setCuenta({
         idSocio: datos.idSocio,
         nombre: datos.nombre,
-        saldoDisponible: Number(datos.saldoDisponible),
+        saldoDisponible,
       })
     } catch (errorPeticion) {
       console.error('Error al consultar el saldo:', errorPeticion)
-
-      setError(
-        errorPeticion.message || 'No se encontró información del socio',
-      )
+      setError(errorPeticion.message || 'No se encontró información del socio')
     } finally {
       setCargando(false)
     }
   }
 
   return (
-   <main className="px-4 py-10">
+    <main className="px-4 py-10">
       <section className="mx-auto max-w-xl">
         <div className="mb-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
@@ -51,6 +62,7 @@ function SaldoPage() {
 
         <form
           onSubmit={manejarConsulta}
+          noValidate
           className="mb-6 rounded-2xl bg-white p-6 shadow-lg"
         >
           <label
@@ -69,7 +81,8 @@ function SaldoPage() {
             onChange={(evento) => setIdSocio(evento.target.value)}
             placeholder="Ejemplo: 1025"
             required
-            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+            disabled={cargando}
+            className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
           />
 
           <button
@@ -90,30 +103,18 @@ function SaldoPage() {
 
         {cuenta ? (
           <article className="rounded-2xl bg-gradient-to-br from-blue-800 to-blue-600 p-8 text-white shadow-lg">
-            <p className="text-sm text-blue-100">
-              Saldo disponible
-            </p>
+            <p className="text-sm text-blue-100">Saldo disponible</p>
 
             <p className="mt-3 text-4xl font-bold">
               ${cuenta.saldoDisponible.toFixed(2)}
             </p>
 
             <div className="mt-8 border-t border-blue-400 pt-5">
-              <p className="text-sm text-blue-100">
-                ID del socio
-              </p>
+              <p className="text-sm text-blue-100">ID del socio</p>
+              <p className="font-semibold">{cuenta.idSocio}</p>
 
-              <p className="font-semibold">
-                {cuenta.idSocio}
-              </p>
-
-              <p className="mt-4 text-sm text-blue-100">
-                Nombre
-              </p>
-
-              <p className="font-semibold">
-                {cuenta.nombre}
-              </p>
+              <p className="mt-4 text-sm text-blue-100">Nombre</p>
+              <p className="font-semibold">{cuenta.nombre}</p>
             </div>
           </article>
         ) : (

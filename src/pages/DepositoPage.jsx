@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { registrarDeposito } from '../services/api'
+import { validarIdSocio, validarMonto } from '../utils/validaciones'
 
 function DepositoPage() {
   const [idSocio, setIdSocio] = useState('')
@@ -11,15 +12,24 @@ function DepositoPage() {
 
   const manejarEnvio = async (evento) => {
     evento.preventDefault()
-    setCargando(true)
     setResultado(null)
     setError('')
+
+    const errorValidacion =
+      validarIdSocio(idSocio) || validarMonto(monto, 'monto del depósito')
+
+    if (errorValidacion) {
+      setError(errorValidacion)
+      return
+    }
 
     const datosDeposito = {
       idSocio: Number(idSocio),
       monto: Number(monto),
-      descripcion,
+      descripcion: descripcion.trim(),
     }
+
+    setCargando(true)
 
     try {
       const respuesta = await registrarDeposito(datosDeposito)
@@ -35,17 +45,14 @@ function DepositoPage() {
       setDescripcion('')
     } catch (errorPeticion) {
       console.error('Error al registrar el depósito:', errorPeticion)
-
-      setError(
-        errorPeticion.message || 'No se pudo registrar el depósito',
-      )
+      setError(errorPeticion.message || 'No se pudo registrar el depósito')
     } finally {
       setCargando(false)
     }
   }
 
   return (
-   <main className="px-4 py-10">
+    <main className="px-4 py-10">
       <section className="mx-auto max-w-xl rounded-2xl bg-white p-8 shadow-lg">
         <div className="mb-8">
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">
@@ -65,7 +72,7 @@ function DepositoPage() {
           <div className="mb-6 rounded-lg border border-green-200 bg-green-100 p-4 text-green-800">
             <p className="font-semibold">{resultado.mensaje}</p>
 
-            {resultado.idTransaccion && (
+            {resultado.idTransaccion !== undefined && (
               <p className="mt-2">
                 <span className="font-semibold">ID de transacción:</span>{' '}
                 {resultado.idTransaccion}
@@ -88,7 +95,7 @@ function DepositoPage() {
           </div>
         )}
 
-        <form className="space-y-6" onSubmit={manejarEnvio}>
+        <form className="space-y-6" onSubmit={manejarEnvio} noValidate>
           <div>
             <label
               htmlFor="idSocioDeposito"
@@ -106,7 +113,8 @@ function DepositoPage() {
               onChange={(evento) => setIdSocio(evento.target.value)}
               placeholder="Ejemplo: 1025"
               required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              disabled={cargando}
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
             />
           </div>
 
@@ -127,7 +135,8 @@ function DepositoPage() {
               onChange={(evento) => setMonto(evento.target.value)}
               placeholder="0.00"
               required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              disabled={cargando}
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
             />
           </div>
 
@@ -145,7 +154,8 @@ function DepositoPage() {
               value={descripcion}
               onChange={(evento) => setDescripcion(evento.target.value)}
               placeholder="Ejemplo: Depósito mensual"
-              className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              disabled={cargando}
+              className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
             />
           </div>
 

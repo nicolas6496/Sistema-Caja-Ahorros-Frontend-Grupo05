@@ -1,72 +1,81 @@
-// Servicio temporal para visualizar las interfaces.
-// Será reemplazado por la integración real con el backend.
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+).replace(/\/$/, '')
 
-const esperar = (tiempo = 700) =>
-  new Promise((resolve) => setTimeout(resolve, tiempo))
+async function leerRespuesta(respuesta) {
+  const tipoContenido = respuesta.headers.get('content-type') || ''
 
-export async function registrarDeposito(datosDeposito) {
-  await esperar()
-
-  console.log('Depósito simulado:', datosDeposito)
-
-  if (
-    !datosDeposito.idSocio ||
-    datosDeposito.idSocio <= 0 ||
-    !datosDeposito.monto ||
-    datosDeposito.monto <= 0
-  ) {
-    throw new Error('Verifica el ID del socio y el monto ingresado')
+  if (tipoContenido.includes('application/json')) {
+    return respuesta.json()
   }
 
-  return {
-    ok: true,
-    mensaje: 'Depósito registrado correctamente',
-    idTransaccion: 3001,
-    nuevoSaldo: 1700.75,
-  }
+  const texto = await respuesta.text()
+  return texto ? { mensaje: texto } : {}
 }
 
-export async function consultarSaldo(idSocio) {
-  await esperar()
-
-  if (!idSocio || idSocio <= 0) {
-    throw new Error('Debes ingresar un ID de socio válido')
+function obtenerMensajeError(datos, estado) {
+  if (typeof datos?.detail === 'string') {
+    return datos.detail
   }
 
-  // Simulación de socio inexistente para probar el mensaje de error.
-  if (Number(idSocio) === 9999) {
-    throw new Error('No se encontró información para el socio ingresado')
+  if (Array.isArray(datos?.detail)) {
+    return datos.detail
+      .map((detalle) => detalle.msg || 'Dato inválido')
+      .join('. ')
   }
 
-  return {
-    idSocio: Number(idSocio),
-    nombre: 'Juan Pérez',
-    saldoDisponible: 1450.75,
+  if (typeof datos?.mensaje === 'string') {
+    return datos.mensaje
   }
+
+  if (typeof datos?.message === 'string') {
+    return datos.message
+  }
+
+  return `La solicitud no pudo completarse (HTTP ${estado})`
 }
 
-export async function solicitarCredito(datosCredito) {
-  await esperar()
+async function peticionApi(ruta, opciones = {}) {
+  let respuesta
 
-  console.log('Crédito simulado:', datosCredito)
-
-  if (
-    !datosCredito.idSocio ||
-    datosCredito.idSocio <= 0 ||
-    !datosCredito.montoSolicitado ||
-    datosCredito.montoSolicitado <= 0 ||
-    !datosCredito.plazoMeses ||
-    datosCredito.plazoMeses <= 0 ||
-    !datosCredito.motivo ||
-    !datosCredito.motivo.trim()
-  ) {
-    throw new Error('Verifica los datos ingresados para la solicitud')
+  try {
+    respuesta = await fetch(`${API_BASE_URL}${ruta}`, {
+      ...opciones,
+      headers: {
+        Accept: 'application/json',
+        ...(opciones.body ? { 'Content-Type': 'application/json' } : {}),
+        ...opciones.headers,
+      },
+    })
+  } catch {
+    throw new Error(
+      'No se pudo conectar con el servidor. Verifica que el backend esté encendido.',
+    )
   }
 
-  return {
-    ok: true,
-    mensaje: 'Solicitud de crédito enviada correctamente',
-    idSolicitud: 5001,
-    estado: 'En revisión',
+  const datos = await leerRespuesta(respuesta)
+
+  if (!respuesta.ok) {
+    throw new Error(obtenerMensajeError(datos, respuesta.status))
   }
+
+  return datos
+}
+
+export function registrarDeposito(datosDeposito) {
+  return peticionApi('/api/transacciones/deposito', {
+    method: 'POST',
+    body: JSON.stringify(datosDeposito),
+  })
+}
+
+export function consultarSaldo(idSocio) {
+  return peticionApi(`/api/socios/${encodeURIComponent(idSocio)}/saldo`)
+}
+
+export function solicitarCredito(datosCredito) {
+  return peticionApi('/api/creditos/solicitud', {
+    method: 'POST',
+    body: JSON.stringify(datosCredito),
+  })
 }
