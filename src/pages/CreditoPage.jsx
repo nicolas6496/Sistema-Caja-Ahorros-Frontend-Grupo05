@@ -1,5 +1,11 @@
 import { useState } from 'react'
 import { solicitarCredito } from '../services/api'
+import {
+  validarIdSocio,
+  validarMonto,
+  validarMotivo,
+  validarPlazoMeses,
+} from '../utils/validaciones'
 
 function CreditoPage() {
   const [idSocio, setIdSocio] = useState('')
@@ -12,16 +18,28 @@ function CreditoPage() {
 
   const manejarEnvio = async (evento) => {
     evento.preventDefault()
-    setCargando(true)
     setResultado(null)
     setError('')
+
+    const errorValidacion =
+      validarIdSocio(idSocio) ||
+      validarMonto(montoSolicitado, 'monto solicitado') ||
+      validarPlazoMeses(plazoMeses) ||
+      validarMotivo(motivo)
+
+    if (errorValidacion) {
+      setError(errorValidacion)
+      return
+    }
 
     const datosCredito = {
       idSocio: Number(idSocio),
       montoSolicitado: Number(montoSolicitado),
       plazoMeses: Number(plazoMeses),
-      motivo,
+      motivo: motivo.trim(),
     }
+
+    setCargando(true)
 
     try {
       const respuesta = await solicitarCredito(datosCredito)
@@ -38,7 +56,6 @@ function CreditoPage() {
       setMotivo('')
     } catch (errorPeticion) {
       console.error('Error al solicitar el crédito:', errorPeticion)
-
       setError(
         errorPeticion.message || 'No se pudo enviar la solicitud de crédito',
       )
@@ -68,7 +85,7 @@ function CreditoPage() {
           <div className="mb-6 rounded-lg border border-green-200 bg-green-100 p-4 text-green-800">
             <p className="font-semibold">{resultado.mensaje}</p>
 
-            {resultado.idSolicitud && (
+            {resultado.idSolicitud !== undefined && (
               <p className="mt-2">
                 <span className="font-semibold">ID de solicitud:</span>{' '}
                 {resultado.idSolicitud}
@@ -91,7 +108,7 @@ function CreditoPage() {
           </div>
         )}
 
-        <form className="space-y-6" onSubmit={manejarEnvio}>
+        <form className="space-y-6" onSubmit={manejarEnvio} noValidate>
           <div>
             <label
               htmlFor="idSocioCredito"
@@ -109,7 +126,8 @@ function CreditoPage() {
               onChange={(evento) => setIdSocio(evento.target.value)}
               placeholder="Ejemplo: 1025"
               required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              disabled={cargando}
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
             />
           </div>
 
@@ -124,15 +142,14 @@ function CreditoPage() {
             <input
               id="montoSolicitado"
               type="number"
-              min="1"
+              min="0.01"
               step="0.01"
               value={montoSolicitado}
-              onChange={(evento) =>
-                setMontoSolicitado(evento.target.value)
-              }
+              onChange={(evento) => setMontoSolicitado(evento.target.value)}
               placeholder="Ejemplo: 5000.00"
               required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              disabled={cargando}
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
             />
           </div>
 
@@ -154,7 +171,8 @@ function CreditoPage() {
               onChange={(evento) => setPlazoMeses(evento.target.value)}
               placeholder="Ejemplo: 24"
               required
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              disabled={cargando}
+              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
             />
           </div>
 
@@ -173,7 +191,8 @@ function CreditoPage() {
               onChange={(evento) => setMotivo(evento.target.value)}
               placeholder="Ejemplo: Mejoras del hogar"
               required
-              className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+              disabled={cargando}
+              className="w-full resize-none rounded-lg border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100 disabled:bg-slate-100"
             />
           </div>
 
